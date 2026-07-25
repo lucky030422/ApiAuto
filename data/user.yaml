@@ -1,0 +1,17 @@
+user_info_success:
+  priority: 2
+  title: 查询用户信息成功
+
+  request:
+    method: GET
+    url: /user/info
+
+    headers:
+
+      Authorization: Bearer ${token}
+
+    need_token: false
+
+  validate:
+    status_code: 200
+    code: 200
