@@ -1,4 +1,4 @@
-# Python
+# Python缓存
 __pycache__/
 *.pyc
 
@@ -8,12 +8,11 @@ __pycache__/
 # pytest
 .pytest_cache/
 
-# Allure
+# Allure报告
 allure-result/
 
-# logs
+# 日志
 logs/
 
-# virtual env
+# 虚拟环境
 venv/
-.env
