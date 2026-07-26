@@ -22,6 +22,8 @@ pipeline {
         stage('安装依赖') {
             steps {
                 bat '''
+                python --version
+                python -m pip --version
                 python -m pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
                 '''
             }
