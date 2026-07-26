@@ -1,3 +1,9 @@
+# ============================================================
+# 用户模块测试数据
+# 使用了 ${token} 变量引用，来自 login 用例的提取结果
+# ============================================================
+
+# 用例：查询用户信息成功
 user_info_success:
   priority: 2
   title: 查询用户信息成功
@@ -5,12 +11,10 @@ user_info_success:
   request:
     method: GET
     url: /user/info
-
     headers:
+      Authorization: Bearer ${token}    # 自动替换为登录获取的 token
 
-      Authorization: Bearer ${token}
-
-    need_token: false
+    need_token: false                    # 已在 headers 中手动设置 token
 
   validate:
     status_code: 200

@@ -2,9 +2,27 @@ from common.logger_util import LoggerUtil
 
 
 class AssertUtil:
+    """
+    断言工具类
+    提供接口响应结果的通用断言方法
+    支持对响应状态码、业务 code、业务 msg 的验证
+    """
 
     @staticmethod
     def assert_resopnse(response, validate):
+        """
+        执行接口响应断言
+
+        参数:
+            response: requests.Response 对象
+            validate: dict，断言规则，支持以下 key:
+                - status_code: 验证 HTTP 状态码
+                - code: 验证响应 JSON 中的业务 code
+                - msg: 验证响应 JSON 中的业务 msg
+
+        示例 validate:
+            {"status_code": 200, "code": 200, "msg": "success"}
+        """
         try:
             body = response.json()
         except Exception:
