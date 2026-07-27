@@ -12,9 +12,11 @@ pipeline {
     stages {
 
         // Stage 1: 从 Git 仓库拉取最新代码
-        stage('拉取代码') {
+        stage('代码检查') {
             steps {
-                echo "拉取代码"
+                bat '''
+                git status
+                '''
             }
         }
 
@@ -24,7 +26,9 @@ pipeline {
                 bat '''
                 python --version
                 python -m pip --version
-                python -m pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+                :: 尝试清华源，超时30秒；失败自动切官方源
+                python -m pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple --timeout 30 --retries 1 ^
+                || python -m pip install -r requirements.txt --timeout 60 --retries 2
                 '''
             }
         }
@@ -46,6 +50,7 @@ pipeline {
 
             allure(
                 includeProperties: false,
+                jdk: ''
                 results: [
                     [
                         path: 'allure-result'
