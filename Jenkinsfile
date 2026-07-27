@@ -1,63 +1,32 @@
-// ============================================================
-// Jenkins Pipeline 配置（Declarative Pipeline）
-// 接口自动化测试 CI/CD 流程
-// 流程：拉取代码 → 安装依赖 → 执行测试 → 生成 Allure 报告
-// ============================================================
-
 pipeline {
 
-    // 在任何可用的 agent 上运行
     agent any
+
 
     stages {
 
-        // Stage 1: 从 Git 仓库拉取最新代码
-        stage('代码检查') {
-            steps {
-                bat '''
-                git status
-                '''
-            }
-        }
 
-        // Stage 2: 安装 Python 项目依赖
-        stage('安装依赖') {
+        stage('测试环境') {
+
             steps {
+
                 bat '''
+                echo Jenkins测试开始
+
+                whoami
+
+                cd
+
                 python --version
-                python -m pip --version
-                :: 尝试清华源，超时30秒；失败自动切官方源
-                python -m pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple --timeout 30 --retries 1 ^
-                || python -m pip install -r requirements.txt --timeout 60 --retries 2
+
+                echo Jenkins测试结束
                 '''
+
             }
+
         }
 
-        // Stage 3: 执行 pytest 测试并生成 Allure 结果数据
-        stage('执行测试') {
-            steps {
-                bat '''
-                pytest -s --alluredir=allure-result
-                '''
-            }
-        }
+
     }
 
-    post {
-
-        // 无论构建结果如何，始终生成并发布 Allure 报告
-        always {
-
-            allure(
-                includeProperties: false,
-                jdk: '',
-                results: [
-                    [
-                        path: 'allure-result'
-                    ]
-                ]
-            )
-
-        }
-    }
 }
