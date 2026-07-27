@@ -50,7 +50,7 @@ pipeline {
 
             allure(
                 includeProperties: false,
-                jdk: ''
+                jdk: '',
                 results: [
                     [
                         path: 'allure-result'
