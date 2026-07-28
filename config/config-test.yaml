@@ -1,0 +1,10 @@
+base:
+  url: http://test.xxx.com
+
+
+timeout:
+  10
+
+
+headers:
+  Content-Type: application/json
