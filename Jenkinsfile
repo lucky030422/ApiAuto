@@ -1,39 +1,52 @@
 pipeline {
 
-    // 使用Jenkins节点执行
+
     agent any
 
 
-    environment {
+    parameters {
 
-        // Allure结果目录
-        ALLURE_RESULT = "allure-result"
+
+        choice(
+
+            name:'TEST_ENV',
+
+            choices:[
+                'dev',
+                'test',
+                'prod'
+            ],
+
+            description:'选择测试环境'
+
+        )
+
 
     }
+
 
 
     stages {
 
 
-        /*
-         * 第一阶段
-         * 环境检查
-         */
+
         stage('环境检查') {
+
 
             steps {
 
-                bat '''
-                chcp 65001
-                echo Jenkins Start
+
+                bat """
+
+                echo 当前环境:
+                echo %TEST_ENV%
+
 
                 python --version
 
-                pip --version
 
-                git --version
+                """
 
-                '''
 
             }
 
@@ -41,69 +54,28 @@ pipeline {
 
 
 
-        /*
-         * 第二阶段
-         * 安装Python依赖
-         */
-        stage('安装依赖') {
 
-            steps {
-
-                bat '''
-                chcp 65001
-                echo Install dependency
-
-                python -m pip install -r requirements.txt ^
-                -i https://pypi.tuna.tsinghua.edu.cn/simple ^
-                --timeout 60
+        stage('执行测试'){
 
 
-                '''
+            environment {
+
+
+                TEST_ENV="${params.TEST_ENV}"
+
 
             }
 
-        }
+
+            steps{
 
 
+                bat """
 
-        /*
-         * 第三阶段
-         * 执行接口自动化测试
-         */
-        stage('执行测试') {
-
-            steps {
-
-                bat '''
-                chcp 65001
-                echo Run pytest
+                pytest -s --alluredir=allure-result
 
 
-                pytest -s ^
-                --alluredir=%ALLURE_RESULT%
-
-
-                '''
-
-            }
-
-        }
-
-
-
-        /*
-         * 第四阶段
-         * 查看测试结果
-         */
-        stage('测试结果') {
-
-            steps {
-
-                bat '''
-                chcp 65001
-                dir %ALLURE_RESULT%
-
-                '''
+                """
 
             }
 
@@ -114,27 +86,21 @@ pipeline {
 
 
 
-    /*
-     * 无论成功失败都执行
-     */
     post {
 
 
         always {
 
 
-            echo "Generate Allure Report"
-
-
             allure(
 
-                includeProperties: false,
+                includeProperties:false,
 
-                results: [
+                results:[
 
                     [
 
-                        path: 'allure-result'
+                        path:'allure-result'
 
                     ]
 
@@ -142,26 +108,10 @@ pipeline {
 
             )
 
-
-        }
-
-
-
-        success {
-
-            echo "接口自动化测试成功"
-
-        }
-
-
-
-        failure {
-
-            echo "接口自动化测试失败"
-
         }
 
 
     }
+
 
 }
