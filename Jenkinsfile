@@ -17,7 +17,7 @@ pipeline {
                 'prod'
             ],
 
-            description:'选择测试环境'
+            description:'测试环境'
 
         )
 
