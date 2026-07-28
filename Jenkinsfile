@@ -6,27 +6,51 @@ pipeline {
     stages {
 
 
-        stage('测试环境') {
+        stage('环境检查') {
 
             steps {
 
                 bat '''
-                echo Jenkins测试开始
-
-                whoami
-
-                cd
+                echo Jenkins Start
 
                 python --version
 
-                echo Jenkins测试结束
+                git --version
+
                 '''
 
             }
 
         }
+        stage('执行测试') {
 
+    steps {
 
+        bat '''
+
+        pytest -s --alluredir=allure-result
+
+        '''
+
+    }
+
+}
+        post {
+
+            always {
+
+                allure(
+                    includeProperties:false,
+                    results:[
+                        [
+                            path:'allure-result'
+                        ]
+                    ]
+                )
+
+            }
+
+        }
     }
 
 }
