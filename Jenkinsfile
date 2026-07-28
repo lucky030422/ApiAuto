@@ -24,6 +24,7 @@ pipeline {
             steps {
 
                 bat '''
+                chcp 65001
                 echo Jenkins Start
 
                 python --version
@@ -49,7 +50,7 @@ pipeline {
             steps {
 
                 bat '''
-
+                chcp 65001
                 echo Install dependency
 
                 python -m pip install -r requirements.txt ^
@@ -74,7 +75,7 @@ pipeline {
             steps {
 
                 bat '''
-
+                chcp 65001
                 echo Run pytest
 
 
@@ -99,7 +100,7 @@ pipeline {
             steps {
 
                 bat '''
-
+                chcp 65001
                 dir %ALLURE_RESULT%
 
                 '''
