@@ -44,4 +44,6 @@ class ConfigUtil:
     @staticmethod
     def get(key):
         config = ConfigUtil.load()
-        return config.get(key)
+        for item in key.split("."):
+            config = config[item]
+        return config
