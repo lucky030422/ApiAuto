@@ -292,6 +292,9 @@ pipeline {
 
 
 
+                mimeType: 'text/html',
+
+
                 to:
                 "lucky2071167255@gmail.com"
 
@@ -366,6 +369,9 @@ pipeline {
 
                 """,
 
+
+
+                mimeType: 'text/html',
 
 
                 to:
