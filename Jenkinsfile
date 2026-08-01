@@ -112,6 +112,7 @@ pipeline {
 
 
                 pytest -s ^
+                --clean-alluredir ^
                 --alluredir=%ALLURE_RESULT%
 
 
