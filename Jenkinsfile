@@ -1,38 +1,44 @@
-// ============================================================
-// Jenkins Pipeline
-// Python接口自动化测试 CI/CD
-//
-// 流程:
-//
-// 1. 拉取GitHub代码
-// 2. 检查测试环境
-// 3. 安装Python依赖
-// 4. 执行pytest自动化测试
-// 5. 生成Allure测试报告
-// 6. 邮件通知测试结果
-//
-// ============================================================
-
-
 pipeline {
 
 
-    // Jenkins执行节点
     agent any
+
+
+    parameters {
+
+
+        choice(
+
+            name:'TEST_ENV',
+
+            choices:[
+                'dev',
+                'test',
+                'prod'
+            ],
+
+            description:'选择测试环境'
+
+        )
+
+    }
+
 
 
     environment {
 
-        // Allure结果目录
-        ALLURE_RESULT = "allure-result"
+
+        ALLURE_RESULT="allure-result"
 
 
-        // Allure报告目录
-        ALLURE_REPORT = "allure-report"
+        ALLURE_REPORT="allure-report"
 
 
-        // Python命令
-        PYTHON = "python"
+        PYTHON="python"
+
+
+        TEST_ENV="${params.TEST_ENV}"
+
 
     }
 
@@ -41,48 +47,24 @@ pipeline {
     stages {
 
 
-        // ====================================================
-        // 1. 拉取代码
-        // ====================================================
 
-        stage('拉取代码') {
-
-            steps {
-
-                echo "========== 拉取代码成功 =========="
-
-            }
-
-        }
+        stage('环境检查'){
 
 
+            steps{
 
-        // ====================================================
-        // 2. 环境检查
-        // ====================================================
-
-        stage('环境检查') {
-
-            steps {
 
                 bat '''
-
-                echo Jenkins Start
-
 
                 python --version
 
+                echo 当前环境:
 
-                pip --version
-
-
-                git --version
-
-
-                echo Environment Check Success
+                echo %TEST_ENV%
 
 
                 '''
+
 
             }
 
@@ -90,27 +72,16 @@ pipeline {
 
 
 
-        // ====================================================
-        // 3. 安装依赖
-        // ====================================================
-
-        stage('安装依赖') {
+        stage('安装依赖'){
 
 
-            steps {
+            steps{
 
 
                 bat '''
-
-                echo Install dependency
-
 
                 python -m pip install -r requirements.txt ^
-                -i https://pypi.tuna.tsinghua.edu.cn/simple ^
-                --timeout 60
-
-
-                echo Install Success
+                -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 
                 '''
@@ -118,31 +89,33 @@ pipeline {
 
             }
 
-
         }
 
 
 
-
-        // ====================================================
-        // 4. 执行接口自动化测试
-        // ====================================================
-
-        stage('执行测试') {
+        stage('执行测试'){
 
 
-            steps {
+            steps{
 
 
                 bat '''
 
-                echo Run API Test
+
+                echo Run Test
+
+
+                echo Environment:
+
+                echo %TEST_ENV%
+
 
 
                 pytest -s ^
                 --alluredir=%ALLURE_RESULT%
 
 
+
                 '''
 
 
@@ -153,230 +126,111 @@ pipeline {
 
 
 
-
-        // ====================================================
-        // 5. 测试结果
-        // ====================================================
-
-        stage('测试结果') {
-
-
-            steps {
-
-
-                script {
-
-
-                    echo "测试执行完成"
-
-
-                }
-
-
-            }
-
-
-        }
-
-
-
     }
 
 
 
-
-    // ====================================================
-    // 后置处理
-    // ====================================================
+    post{
 
 
-    post {
-
-
-        // -----------------------------------------
-        // 无论成功失败都生成Allure报告
-        // -----------------------------------------
-
-        always {
-
-
-            echo "Generate Allure Report"
-
+        always{
 
 
             allure(
 
+                includeProperties:false,
 
-                includeProperties: false,
-
-
-                results: [
-
+                results:[
 
                     [
 
-
-                        path: "${ALLURE_RESULT}"
-
+                        path:"${ALLURE_RESULT}"
 
                     ]
-
 
                 ]
 
             )
 
-
-
         }
 
 
 
-        // -----------------------------------------
-        // 测试成功邮件
-        // -----------------------------------------
-
-
-        success {
-
+        success{
 
 
             emailext(
 
-
                 subject:
-                "✅ 接口自动化测试成功 - ${JOB_NAME} #${BUILD_NUMBER}",
-
+                "✅测试成功 ${JOB_NAME} #${BUILD_NUMBER}",
 
 
                 body:
-
-
                 """
 
-                <h2>接口自动化测试成功</h2>
-
-
-                <hr>
-
-
-                <p>
                 项目:
                 ${JOB_NAME}
-                </p>
 
 
-                <p>
-                构建编号:
-                ${BUILD_NUMBER}
-                </p>
+                环境:
+                ${TEST_ENV}
 
 
-                <p>
-                执行状态:
+                状态:
                 SUCCESS
-                </p>
 
 
-
-                <p>
-                Allure报告:
-                <a href="${BUILD_URL}">
-                点击查看
-                </a>
-                </p>
-
+                Allure:
+                ${BUILD_URL}
 
 
                 """,
 
 
-
-                mimeType: 'text/html',
-
-
                 to:
                 "lucky2071167255@gmail.com"
-
 
 
             )
 
-
         }
 
 
 
 
-
-        // -----------------------------------------
-        // 测试失败邮件
-        // -----------------------------------------
-
-
-        failure {
-
+        failure{
 
 
             emailext(
 
-
                 subject:
-                "❌ 接口自动化测试失败 - ${JOB_NAME} #${BUILD_NUMBER}",
-
+                "❌测试失败 ${JOB_NAME} #${BUILD_NUMBER}",
 
 
                 body:
-
-
                 """
 
-                <h2>
-                接口自动化测试失败
-                </h2>
-
-
-                <hr>
-
-
-                <p>
                 项目:
                 ${JOB_NAME}
-                </p>
 
 
-                <p>
-                构建编号:
-                ${BUILD_NUMBER}
-                </p>
+                环境:
+                ${TEST_ENV}
 
 
-                <p>
-                执行状态:
+                状态:
                 FAILURE
-                </p>
 
 
-
-                <p>
-                控制台日志:
-                <a href="${BUILD_URL}console">
-                查看日志
-                </a>
-                </p>
-
+                日志:
+                ${BUILD_URL}console
 
 
                 """,
 
 
-
-                mimeType: 'text/html',
-
-
                 to:
                 "lucky2071167255@gmail.com"
-
 
 
             )
@@ -387,7 +241,6 @@ pipeline {
 
 
     }
-
 
 
 }
