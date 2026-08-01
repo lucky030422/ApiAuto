@@ -293,7 +293,7 @@ pipeline {
 
 
                 to:
-                "你的gmail@gmail.com"
+                "lucky2071167255@gmail.com"
 
 
 
