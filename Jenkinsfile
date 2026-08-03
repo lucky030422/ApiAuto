@@ -62,6 +62,9 @@ pipeline {
 
                 echo %TEST_ENV%
 
+                docker --version
+
+                docker ps
 
                 '''
 
@@ -70,7 +73,23 @@ pipeline {
 
         }
 
+        stage('启动测试环境'){
 
+
+            step{
+
+
+                bat '''
+
+                echo Start Docker Environment
+
+                docker-compose up -d
+
+                echo Docker Started
+
+                '''
+            }
+        }
 
         stage('安装依赖'){
 
@@ -137,6 +156,9 @@ pipeline {
         always{
 
 
+            echo 'Generate Allure Report'
+
+
             allure(
 
                 includeProperties:false,
@@ -153,7 +175,15 @@ pipeline {
 
             )
 
-        }
+
+            echo 'Stop Docker Environment'
+
+                bat '''
+
+                docker compose down
+
+                '''
+            }
 
 
 
