@@ -139,9 +139,9 @@ pipeline {
 
                 pytest -s ^
                 --clean-alluredir ^
-                --rerun 2 ^
-                --alluredir=%ALLURE_RESULT%
-                --junitxml=test-results.xml ^
+                --reruns 2 ^
+                --alluredir=%ALLURE_RESULT% ^
+                --junitxml=test-results.xml 
 
 
 
