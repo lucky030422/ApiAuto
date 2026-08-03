@@ -209,6 +209,10 @@ pipeline {
                 subject:
                 "✅测试成功 ${JOB_NAME} #${BUILD_NUMBER}",
 
+                body:
+
+                """
+
                 <h2>接口自动化测试报告</h2>
 
 
