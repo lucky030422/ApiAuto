@@ -76,7 +76,7 @@ pipeline {
         stage('启动测试环境'){
 
 
-            step{
+            steps{
 
 
                 bat '''
