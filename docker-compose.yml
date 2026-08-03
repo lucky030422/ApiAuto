@@ -14,3 +14,9 @@ services:
 
     container_name:
       api-server
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5

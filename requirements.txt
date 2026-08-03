@@ -3,3 +3,4 @@ requests>=2.31
 pyyaml>=6.0
 allure-pytest>=2.13
 jsonpath>=0.82
+pytest-rerunfailures>=10.3

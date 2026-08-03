@@ -2,7 +2,12 @@ pipeline {
 
 
     agent any
-
+    
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+        timeout(time: 30, unit: 'MINUTES')
+        disableConcurrentBuilds()
+    }
 
     parameters {
 
@@ -85,6 +90,8 @@ pipeline {
 
                 docker-compose up -d
 
+                timeout /t 5
+
                 echo Docker Started
 
                 '''
@@ -132,7 +139,9 @@ pipeline {
 
                 pytest -s ^
                 --clean-alluredir ^
+                --rerun 2 ^
                 --alluredir=%ALLURE_RESULT%
+                --junitxml=test-results.xml ^
 
 
 
@@ -142,6 +151,11 @@ pipeline {
             }
 
 
+        }
+        stage('发布测试结果'){
+            steps{
+                junit 'test-results.xml'
+            }
         }
 
 
@@ -195,28 +209,55 @@ pipeline {
                 subject:
                 "✅测试成功 ${JOB_NAME} #${BUILD_NUMBER}",
 
+                <h2>接口自动化测试报告</h2>
 
-                body:
-                """
 
+                <hr>
+
+
+                <p>
                 项目:
                 ${JOB_NAME}
+                </p>
 
 
-                环境:
+                <p>
+                构建编号:
+                ${BUILD_NUMBER}
+                </p>
+
+
+                <p>
+                测试环境:
                 ${TEST_ENV}
+                </p>
 
 
-                状态:
+                <p>
+                执行结果:
                 SUCCESS
+                </p>
 
 
-                Allure:
-                ${BUILD_URL}
+                <p>
+                测试报告:
+                <a href="${BUILD_URL}allure">
+                查看Allure报告
+                </a>
+                </p>
+
+
+                <p>
+                Jenkins地址:
+                <a href="${BUILD_URL}">
+                查看构建详情
+                </a>
+                </p>
 
 
                 """,
-
+                mimeType:
+                'text/html',
 
                 to:
                 "lucky2071167255@gmail.com"
@@ -237,27 +278,54 @@ pipeline {
                 subject:
                 "❌测试失败 ${JOB_NAME} #${BUILD_NUMBER}",
 
-
                 body:
+
                 """
 
+                <h2>
+                接口自动化测试失败
+                </h2>
+
+
+                <hr>
+
+
+                <p>
                 项目:
                 ${JOB_NAME}
+                </p>
 
 
-                环境:
+                <p>
+                构建编号:
+                ${BUILD_NUMBER}
+                </p>
+
+
+                <p>
+                测试环境:
                 ${TEST_ENV}
+                </p>
 
 
+                <p>
                 状态:
                 FAILURE
+                </p>
 
 
+                <p>
                 日志:
-                ${BUILD_URL}console
+                <a href="${BUILD_URL}console">
+                查看控制台
+                </a>
+                </p>
 
 
                 """,
+
+
+                mimeType:'text/html',
 
 
                 to:
