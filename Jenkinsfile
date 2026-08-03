@@ -180,7 +180,7 @@ pipeline {
 
                 bat '''
 
-                docker compose down
+                docker-compose down
 
                 '''
             }
